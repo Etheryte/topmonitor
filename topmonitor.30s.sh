@@ -3,7 +3,7 @@
 # <bitbar.version>v0.1</bitbar.version>
 # <bitbar.author.github>Etheryte</bitbar.author.github>
 # <bitbar.author>Etheryte</bitbar.author>
-# <bitbar.desc>Monitor top output and allow us to kill things off</bitbar.desc>
+# <bitbar.desc>System utility for monitoring rogue processes</bitbar.desc>
 
 if [ "$1" = 'kill' ]; then
 	kill -9 $2
