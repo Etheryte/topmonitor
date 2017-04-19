@@ -14,7 +14,7 @@ if [ "$1" = 'kill' ]; then
 fi
 
 # Get some items from top
-ITEMS=$(ps -x -r -o %cpu -o pid -o comm | sed -E '2,8!d ; s/\/.*\///g ; s/\ +/\ /g; s/^\ //')
+ITEMS=$(ps -x -r -o %cpu -o pid -o comm | sed '2,11!d' | sed -E 's/\/.*\///g ; s/\ +/\ /g; s/^\ //')
 
 # Loop through them, see if we have an issue
 RESULT=""
