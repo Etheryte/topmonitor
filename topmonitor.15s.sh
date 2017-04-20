@@ -5,6 +5,7 @@
 # <bitbar.author>Etheryte</bitbar.author>
 # <bitbar.desc>System utility for monitoring rogue processes</bitbar.desc>
 
+# If the script is recalled with params it means we're killing something off
 if [ "$1" = 'kill' ]; then
 	kill -9 $2
 	# Refresh the menubar if we killed something
@@ -13,13 +14,15 @@ if [ "$1" = 'kill' ]; then
 	exit
 fi
 
-# Get some items from top
+# Sort processes by CPU usage, get 10 items, apply some formatting
 ITEMS=$(ps -x -r -o %cpu -o pid -o comm | sed '2,11!d' | sed -E 's/\/.*\///g ; s/\ +/\ /g; s/^\ //')
 
 # Loop through them, see if we have an issue
 RESULT=""
-CPU_LIMIT="90.0"
+LOWER_CPU_LIMIT="90.0"
+HIGHER_CPU_LIMIT="99.0"
 SOMETHING_FUCKY=false
+SOMETHING_ULTRA_FUCKY=false
 
 while read -r ITEM; do
 	FIELDS=($ITEM)
@@ -27,17 +30,22 @@ while read -r ITEM; do
 	PID=${FIELDS[1]}
 	NAME=$(echo $ITEM | sed -E 's/.*\ [0-9]*\ //')
 
-	if (( $(echo "$CPU > $CPU_LIMIT" |bc -l) )); then
+	if (( $(echo "$CPU > $LOWER_CPU_LIMIT" |bc -l) )); then
 		SOMETHING_FUCKY=true
 		RESULT+=$CPU%\ $NAME
 		RESULT+=" | bash='$0' param1=kill param2=$PID terminal=false"
 		RESULT+=$'\n\r'
 	fi
+	if (( $(echo "$CPU > $HIGHER_CPU_LIMIT" |bc -l) )); then
+		SOMETHING_ULTRA_FUCKY=true
+	fi
 done <<< "$ITEMS"
 
 # If something is fucky, let us know
-if [ "$SOMETHING_FUCKY" = true ]; then
+if [ "$SOMETHING_ULTRA_FUCKY" = true ]; then
 	echo "● | $FONT color=red"
+elif [ "$SOMETHING_FUCKY" = true ]; then
+	echo "● | $FONT color=orange"
 else
 	echo "○"
 fi
